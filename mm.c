@@ -95,15 +95,51 @@ int mm_init(void)
  */
 void *mm_malloc(size_t size)
 {
-int newsize = ALIGN(size + SIZE_T_SIZE);
-    void *p = mem_sbrk(newsize);
-    if (p == (void *)-1)
-	return NULL;
-    else {
-        *(size_t *)p = size;
-        return (void *)((char *)p + SIZE_T_SIZE);
-    }
+	int newsize = (ALIGN(size) + 16); //how many bytes needed
+        unsigned long newsizeword = (unsigned long) (newsize/8); //how many words needed
+        void *current = HEAD;
+        void *best = HEAD;
+        while(current != NULL){
+                if(GET_SIZE(current) == newsize){ //if exact fit
+                        unsigned long *curnext = ((unsigned long *) current) + 1;
+                        unsigned long *curprev = ((unsigned long *) current) + 2;
+
+                        curnext + 2 = curprev;
+                        curprev + 1 = curnext;
+
+                        *((unsigned long *) current) =(unsigned long) (newsize + 1); //sets up header
+                        *(((unsigned long *) current) + (newsizeword-1)) =(unsigned long) (newsize + 1); //sets up footer
+                        return current;
+                }
+                else if(GET_SIZE(current) > GET_SIZE(best) && GET_SIZE(current) > newsize){
+                        best = current;
+                }
+                current = *(((unsigned long *) current) + 1); //moves down the free list
+        }
+        if(GET_SIZE(best) < newsize){
+                //sbrk
+        }
+        else{ //allocate memory
+                unsigned long *curnext = ((unsigned long *) current) + 1;
+                unsigned long *curprev = ((unsigned long *) current) + 2;
+                *(curnext + 2) = *(curnext + 2) - newsize;
+		*(curprev + 1) = *(curprev + 1) + newsize;
+
+                unsigned long fsize = (unsigned long) (GET_SIZE(current) - newsize);
+                unsigned long *new = ((unsigned long *)current) + newsize;
+                *(new) = fsize;
+                *(new + 1) = curnext;
+                *(new + 2) = curprev;
+                *(new + (fsize-8)) = fsize;
+
+                *((unsigned long *) current) =(unsigned long) (newsize + 1); //sets up header
+                *(((unsigned long *) current) + (newsizeword-1)) =(unsigned long) (newsize + 1); //sets up footer
+
+                unsigned long *ret = ((unsigned long *) current) + 1;
+                return (void *) ret;
+        }
 }
+
 
 /*
  * mm_free - Freeing a block does nothing.
