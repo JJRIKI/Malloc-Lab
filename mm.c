@@ -52,7 +52,15 @@ team_t team = {
  */
 int mm_init(void)
 {
-    return 0;
+       int startSize = 1024;
+        void *p = mem_sbrk(startSize);
+        if (mem_heapsize() <  startSize){
+                return -1;
+        }
+        else{
+                return 0;
+        {
+
 }
 
 /* 
