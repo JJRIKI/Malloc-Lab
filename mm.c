@@ -28,13 +28,18 @@ team_t team = {
     /* First member's full name */
     "Tanner Leslie",
     /* First member's email address */
-    "",
+    "tleslie@westmont.edu",
     /* Second member's full name (leave blank if none) */
     "James Bek",
     /* Second member's email address (leave blank if none) */
-    "Emily Peterson"
-    "emilpeterson@westmont.edu"
-    "Ben Thomas"
+    "jbek@westmont.edu",
+    /* Third member's full name (leave blank if none) */
+    "Emily Peterson",
+    /* Third member's email address (leave blank if none) */
+    "emilpeterson@westmont.edu",
+    /* Fourth member's full name (leave blank if none) */
+    "Ben Thomas",
+    /* Fourth member's email address (leave blank if none) */
     "bethomas@westmont.com"
 };
 
