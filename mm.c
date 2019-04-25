@@ -220,7 +220,7 @@ void mm_bridge(unsigned long* next, unsigned long *prev){
 
 /*
  * mm_messiah iterates through the linked list and tests equality of 
- * free block headers and footers
+ * free block headers and footers as well as allocated feild bit value
  */
 int mm_messiah(void *head_){
 	
@@ -234,6 +234,10 @@ int mm_messiah(void *head_){
 	if (headSize != (headSize + (headSize - 1))){
 		return -1;
 	}
+	// check allocated field bit
+	if ((headSize & 0x1) || ((headSize + (headSize - 1)) & 0x1)){
+		return -1;
+	}
 	// iterate to second free block
 	unsigned long *block = GET_NEXT(head);
 	while (block != head){
@@ -241,6 +245,10 @@ int mm_messiah(void *head_){
 		blockSize = GET_SIZE(block);
 		// make sure block header and footer are identical
 		if (blockSize != (blockSize + (blockSize -1 ))){
+			return -1;
+		}
+		// check allocated field bit
+		if ((blockSize & 0x1) || ((blockSize + (blockSize - 1)) & 0x1)){
 			return -1;
 		}
 		// iterate to next free block
