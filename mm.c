@@ -47,6 +47,14 @@ team_t team = {
 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
+#define GET(p) (*(unsigned long*) (p))
+#define PUT(p,val) (*(unsigned long*) (p) = (val))
+
+#define GET_SIZE(p) (GET(p) & ~0x7)
+#define GET_ALLOC(p) (GET(p) & 0x1)
+
+
+
 void *HEAD;
 
 /* 
