@@ -93,6 +93,7 @@ void *mm_malloc(size_t size)
  */
 void mm_free(void *ptr)
 {
+	//TODO cast ptr to unsigned long *
         // set header indicator bit to 0
         unsigned long x = GET(ptr);
         PUT(ptr,(x & 0x0));
@@ -100,6 +101,16 @@ void mm_free(void *ptr)
         x = GET(ptr + (GET_SIZE(ptr) - 1));
         PUT(ptr + (GET_SIZE(ptr)-1),(x & 0x0));
 
+	//TODO cast ptr to void *
+	coalesce(ptr);
+	
+	/*TODO add ptr to head of list 
+	// set next
+	PUT(ptr + 1, NEXT_POINTER);
+	// set prev
+	PUT(ptr + 2, PREV_POINTER);
+	*/
+	
 
 }
 
@@ -127,14 +138,69 @@ void *mm_realloc(void *ptr, size_t size)
  * mm_coalesce itterates through the linked list and merges 	
  * neighboring free blocks
  */
-int mm_coalesce()
+int mm_coalesce(void *ptr)
 {
+	int ptrSize;
+	//TODO cast ptr to unsigned long *
+	
+	// point to adjacent left block footer
+	unsigned long *left = ptr - 1;//TODO check if off heap
+	if ((left) & 0x1){
+		// get block size of free adjacent free block
+		int leftSize = GET_SIZE(left);
+		// set left pointer to block header 
+		left = leftSize - 1;
+		// get block size of ptr
+		ptrSize = GET_SIZE(ptr);
+		// set left header size to left + ptr size header		
+		PUT(left,leftSize + ptrSize);
+		// set ptr footer size to left + ptr size
+		PUT((ptr + (ptrSize - 1)), (leftSize + ptrSize);
+
+		// create pointers to left's next and prev blocks
+		// TODO if this doesnt work, add another level of value transfer i.e. longs x,y = value of left next/prev then *next and *prev = adress of x,y
+		unsigned long *next = *(left + 1);
+		unsigned long *prev = *(left + 2);
+		
+		// bridge left's next/prev blocks
+		mm_bridge(next,prev);
+		ptr = left;
+
+	ptrSize = GET_SIZE(ptr);
+	unsigned long *right = ptr + ptrSize;//TODO check if off heap
+	if ((right) & 0x1){
+		// get block size of free adjacent free block
+		int rightSize = GET_SIZE(right);
+		// set ptr block header size to ptr + right block size
+		PUT(ptr, (ptrSize + rightSize));
+		// set right block footer size to ptr + right block size
+		PUT((right + (rightSize - 1)), (ptrSize + rightSize));
+		
+
+		// create pointers to right's next and prev blocks
+		// TODO if this doesnt work, add another level of value transfer i.e. longs x,y = value of right next/prev then *next and *prev = adress of x,y
+		unsigned long *next = *(right + 1);
+		unsigned long *prev = *(right + 2);
+		
+		// bridge right's next/prev blocks
+		mm_bridge(next,prev);
+		
+	}
+
+
 	return 1;
 }
 
+// mm_bridge bridges the gap between block next and block prev in the linked list
+void mm_bridge(unsigned long* next, unsigned long *prev){
+	// set next block's previouse field to prev
+	PUT(next + 2, prev);
+	// set prev block's next field to next
+	PUT(prev + 1, next);	
 
 
 
+}
 
 
 
