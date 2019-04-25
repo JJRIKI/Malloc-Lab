@@ -47,19 +47,20 @@ team_t team = {
 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
+void *HEAD;
+
 /* 
  * mm_init - initialize the malloc package.
  */
 int mm_init(void)
 {
-       int startSize = 1024;
-        void *p = mem_sbrk(startSize);
+        int startSize = 1024;
+        mem_sbrk(startSize);
         if (mem_heapsize() <  startSize){
-                return -1;
+                 return -1;
         }
-        else{
-                return 0;
-        {
+        HEAD = mem_heap_lo();
+	return 0;
 
 }
 
@@ -106,9 +107,14 @@ void *mm_realloc(void *ptr, size_t size)
     return newptr;
 }
 
-
-
-
+/*
+ * mm_coalesce itterates through the linked list and merges 	
+ * neighboring free blocks
+ */
+int mm_coalesce()
+{
+	return 1;
+}
 
 
 
