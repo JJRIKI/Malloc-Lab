@@ -55,8 +55,8 @@ team_t team = {
 #define GET(p) (*(unsigned long*) (p))
 #define PUT(p,val) (*(unsigned long*) (p) = (val))
 
-#define GET_NEXT(p) (*(unsigned long*) (p + 1)
-#define GET_PREV(p) (*(unsigned long*) (p + 2)
+#define GET_NEXT(p) (*(unsigned long*) (p + 1))
+#define GET_PREV(p) (*(unsigned long*) (p + 2))
 
 #define GET_SIZE(p) (GET(p) & ~0x7)
 #define GET_ALLOC(p) (GET(p) & 0x1)
@@ -95,7 +95,7 @@ int mm_init(void)
  */
 void *mm_malloc(size_t size)
 {
-    int newsize = ALIGN(size + SIZE_T_SIZE);
+int newsize = ALIGN(size + SIZE_T_SIZE);
     void *p = mem_sbrk(newsize);
     if (p == (void *)-1)
 	return NULL;
@@ -108,17 +108,17 @@ void *mm_malloc(size_t size)
 /*
  * mm_free - Freeing a block does nothing.
  */
-void mm_free(void *ptr)
+void mm_free(void *ptr_)
 {
-	//TODO cast ptr to unsigned long *
-        // set header indicator bit to 0
+	// cast void pointer to an unsigned long pointer
+	unsigned long *ptr = (*(unsigned long *) (ptr_));
+        // set header allocated field bit to 0
         unsigned long x = GET(ptr);
         PUT(ptr,(x & 0x0));
-        // set footer indicator bit to 0
+        // set footer allocated feild bit to 0
         x = GET(ptr + (GET_SIZE(ptr) - 1));
         PUT(ptr + (GET_SIZE(ptr)-1),(x & 0x0));
 
-	//TODO cast ptr to void *
 	coalesce(ptr);
 	
 	/*TODO add ptr to head of list 
@@ -155,10 +155,9 @@ void *mm_realloc(void *ptr, size_t size)
  * mm_coalesce itterates through the linked list and merges 	
  * neighboring free blocks
  */
-int mm_coalesce(void *ptr)
+int mm_coalesce(unsigned long *ptr)
 {
 	int ptrSize;
-	//TODO cast ptr to unsigned long *
 	
 	// point to adjacent left block footer
 	unsigned long *left = ptr - 1;//TODO check if off heap
@@ -223,9 +222,10 @@ void mm_bridge(unsigned long* next, unsigned long *prev){
  * mm_messiah iterates through the linked list and tests equality of 
  * free block headers and footers
  */
-int mm_messiah(void *head){
+int mm_messiah(void *head_){
 	
-	//TODO cast head to unsigned long *	
+	// cast void head pointer to an unsigned long pointer
+	unsigned long *head = (*(unsigned long *) (head_));	
 	int headSize, blockSize;
 
 	// get size of linked list head
