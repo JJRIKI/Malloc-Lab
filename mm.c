@@ -28,13 +28,18 @@ team_t team = {
     /* First member's full name */
     "Tanner Leslie",
     /* First member's email address */
-    "",
+    "tleslie@westmont.edu",
     /* Second member's full name (leave blank if none) */
     "James Bek",
     /* Second member's email address (leave blank if none) */
-    "Emily Peterson"
-    "emilpeterson@westmont.edu"
-    "Ben Thomas"
+    "jbek@westmont.edu",
+    /* Third member's full name (leave blank if none) */
+    "Emily Peterson",
+    /* Third member's email address (leave blank if none) */
+    "emilpeterson@westmont.edu",
+    /* Fourth member's full name (leave blank if none) */
+    "Ben Thomas",
+    /* Fourth member's email address (leave blank if none) */
     "bethomas@westmont.com"
 };
 
@@ -62,13 +67,22 @@ void *HEAD;
  */
 int mm_init(void)
 {
-        int startSize = 1024;
-        mem_sbrk(startSize);
-        if (mem_heapsize() <  startSize){
-                 return -1;
-        }
-        HEAD = mem_heap_lo();
-	return 0;
+ 	int startSize = 1024;
+          HEAD = mem_sbrk(startSize);
+          if (mem_heapsize() <  startSize){
+                  return -1;
+          }
+  
+          unsigned long * start = (unsigned long *)  mem_heap_lo();
+  
+          *(start) = (unsigned long) startSize; //initializes the header
+  
+          *((char *) mem_heap_hi() - 7) = (unsigned long) startSize; //initalizes footer
+  
+          *(start + 1) = NULL; //sets next free block to null
+          *(start + 2) = NULL; //sets previous free block to null
+  
+          return 0;
 
 }
 
