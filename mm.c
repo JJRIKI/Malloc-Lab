@@ -55,6 +55,9 @@ team_t team = {
 #define GET(p) (*(unsigned long*) (p))
 #define PUT(p,val) (*(unsigned long*) (p) = (val))
 
+#define GET_NEXT(p) (*(unsigned long*) (p + 1)
+#define GET_PREV(p) (*(unsigned long*) (p + 2)
+
 #define GET_SIZE(p) (GET(p) & ~0x7)
 #define GET_ALLOC(p) (GET(p) & 0x1)
 
@@ -216,7 +219,39 @@ void mm_bridge(unsigned long* next, unsigned long *prev){
 
 }
 
+/*
+ * mm_messiah iterates through the linked list and tests equality of 
+ * free block headers and footers
+ */
+int mm_messiah(void *head){
+	
+	//TODO cast head to unsigned long *	
+	int headSize, blockSize;
 
+	// get size of linked list head
+	headSize = GET_SIZE(head);
+	// make sure head header and footer are identical	
+	if (headSize != (headSize + (headSize - 1))){
+		return -1;
+	}
+	// iterate to second free block
+	unsigned long *block = GET_NEXT(head);
+	while (block != head){
+		// get block size
+		blockSize = GET_SIZE(block);
+		// make sure block header and footer are identical
+		if (blockSize != (blockSize + (blockSize -1 ))){
+			return -1;
+		}
+		// iterate to next free block
+		block = GET_NEXT(block);		
+	}
+	return 0;
+}
+
+
+
+}
 
 
 
