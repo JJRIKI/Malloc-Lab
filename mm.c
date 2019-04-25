@@ -93,6 +93,14 @@ void *mm_malloc(size_t size)
  */
 void mm_free(void *ptr)
 {
+        // set header indicator bit to 0
+        unsigned long x = GET(ptr);
+        PUT(ptr,(x & 0x0));
+        // set footer indicator bit to 0
+        x = GET(ptr + (GET_SIZE(ptr) - 1));
+        PUT(ptr + (GET_SIZE(ptr)-1),(x & 0x0));
+
+
 }
 
 /*
